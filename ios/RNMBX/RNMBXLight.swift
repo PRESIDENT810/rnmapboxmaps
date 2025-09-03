@@ -56,10 +56,12 @@ public class RNMBXLight: UIView, RNMBXMapComponent {
   }
 
   public func addToMap(_ map: RNMBXMapView, style: Style) {
-    self.map = map.mapboxMap
-    if (reactStyle != nil) {
-      addStyles()
-    }
+    map.withMapboxMap(callback: {mapboxMap_ in
+      self.map = mapboxMap_
+      if (self.reactStyle != nil) {
+        self.addStyles()
+      }
+    })
   }
   
   public func removeFromMap(_ map: RNMBXMapView, reason: RemovalReason) -> Bool  {

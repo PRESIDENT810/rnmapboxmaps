@@ -47,9 +47,9 @@ public class RNMBXCustomLocationProvider: UIView, RNMBXMapComponent {
 
   public func addToMap(_ map: RNMBXMapView, style: Style) {
     self.map = map
-    if let mapView = map.mapView {
-      installCustomeLocationProviderIfNeeded(mapView: mapView)
-    }
+    map.withMapView(callback: {mapView_ in
+      self.installCustomeLocationProviderIfNeeded(mapView: mapView_)
+    })
   }
   
   private func applyCoordinate() {
@@ -61,10 +61,10 @@ public class RNMBXCustomLocationProvider: UIView, RNMBXMapComponent {
   }
   
   public func removeFromMap(_ map: RNMBXMapView, reason: RemovalReason) -> Bool {
-    if let mapView = map.mapView {
-      removeCustomLocationProvider(mapView: mapView)
-    }
-    self.map = nil
+    map.withMapView(callback: {mapView_ in
+      self.removeCustomLocationProvider(mapView: mapView_)
+      self.map = nil
+    })
     return true
   }
 

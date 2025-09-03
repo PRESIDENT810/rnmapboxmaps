@@ -36,19 +36,23 @@ public class RNMBXSource : RNMBXInteractiveElement {
     super.insertReactSubview(subview, at: atIndex)
   }
     
-    @objc public func insertReactSubviewInternal(_ subview: UIView!, at atIndex: Int) {
-        if let layer = subview as? RNMBXSourceConsumer {
-          if let map = map {
-            layer.addToMap(map, style: map.mapboxMap.style)
-          }
-          layers.append(layer)
-        } else if let component = subview as? RNMBXMapComponent {
-          if let map = map {
-            component.addToMap(map, style: map.mapboxMap.style)
-          }
-          components.append(component)
+  @objc public func insertReactSubviewInternal(_ subview: UIView!, at atIndex: Int) {
+      if let layer = subview as? RNMBXSourceConsumer {
+        if let map = map {
+          map.withMapboxMap(callback: {mapboxMap_ in
+            layer.addToMap(map, style: mapboxMap_.style)
+          })
         }
-    }
+        layers.append(layer)
+      } else if let component = subview as? RNMBXMapComponent {
+        if let map = map {
+          map.withMapboxMap(callback: {mapboxMap_ in
+            component.addToMap(map, style: mapboxMap_.style)
+          })
+        }
+        components.append(component)
+      }
+  }
   
   @objc public override func removeReactSubview(_ subview: UIView!) {
     removeReactSubviewInternal(subview)
@@ -58,7 +62,9 @@ public class RNMBXSource : RNMBXInteractiveElement {
     @objc public func removeReactSubviewInternal(_ subview: UIView!) {
         if let layer : RNMBXSourceConsumer = subview as? RNMBXSourceConsumer {
           if let map = map {
-            layer.removeFromMap(map, style: map.mapboxMap.style)
+            map.withMapboxMap(callback: {mapboxMap_ in
+              layer.removeFromMap(map, style: mapboxMap_.style)
+            })
           }
           layers.removeAll { $0 as AnyObject === layer }
         } else if let component = subview as? RNMBXMapComponent {
@@ -101,10 +107,14 @@ public class RNMBXSource : RNMBXInteractiveElement {
     }
 
     for layer in self.layers {
-      layer.addToMap(map, style: map.mapboxMap.style)
+      map.withMapboxMap(callback: {mapboxMap_ in
+        layer.addToMap(map, style: mapboxMap_.style)
+      })
     }
     for component in self.components {
-      component.addToMap(map, style: map.mapboxMap.style)
+      map.withMapboxMap(callback: {mapboxMap_ in
+        component.addToMap(map, style: mapboxMap_.style)
+      })
     }
   }
 
@@ -112,15 +122,19 @@ public class RNMBXSource : RNMBXInteractiveElement {
     self.map = nil
 
     for layer in self.layers {
-      layer.removeFromMap(map, style: map.mapboxMap.style)
+      map.withMapboxMap(callback: {mapboxMap_ in
+        layer.removeFromMap(map, style: mapboxMap_.style)
+      })
     }
 
     if self.ownsSource {
-      let style = map.mapboxMap.style
-      logged("StyleSource.removeFromMap", info: { "id: \(optional: self.id)"}) {
-        try style.removeSource(withId: id)
-      }
-      self.ownsSource = false
+      map.withMapboxMap(callback: {mapboxMap_ in
+        let style = mapboxMap_.style
+        logged("StyleSource.removeFromMap", info: { "id: \(optional: self.id)"}) {
+          try style.removeSource(withId: self.id)
+        }
+        self.ownsSource = false
+      })
     }
     return true
   }

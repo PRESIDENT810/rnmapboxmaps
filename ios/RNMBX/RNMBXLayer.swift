@@ -322,7 +322,9 @@ public class RNMBXLayer : UIView, RNMBXMapComponent, RNMBXSourceConsumer {
   }
 
   public func removeFromMap(_ map: RNMBXMapView, reason: RemovalReason) -> Bool {
-    removeFromMap(map.mapboxMap.style)
+    map.withMapboxMap(callback: {mapboxMap_ in
+      self.removeFromMap(mapboxMap_.style)
+    })
     return true
   }
 

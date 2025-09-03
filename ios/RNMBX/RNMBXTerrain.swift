@@ -25,12 +25,10 @@ public class RNMBXTerrain : RNMBXSingletonLayer, RNMBXMapComponent, RNMBXSourceC
   public func removeFromMap(_ map: RNMBXMapView, reason: RemovalReason) -> Bool {
     self.map = nil
     
-    guard let mapboxMap = map.mapboxMap else {
-      return true
-    }
-    
-    let style = mapboxMap.style
-    removeFromMap(map, style: style)
+    map.withMapboxMap(callback: {mapboxMap_ in
+      let style = mapboxMap_.style
+      self.removeFromMap(map, style: style)
+    })
     return true
   }
   

@@ -24,7 +24,11 @@ public class RNMBXInteractiveElement : UIView, RNMBXMapComponent {
     }
     didSet {
       if oldValue != nil && oldValue != id {
-        if let map = map { addToMap(map, style: map.mapboxMap.style) }
+        if let map = map {
+          self.map?.withMapboxMap(callback: {mapboxMap_ in
+            self.addToMap(map, style: mapboxMap_.style)
+          })
+        }
       }
     }
   }
